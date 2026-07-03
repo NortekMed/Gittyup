@@ -58,7 +58,7 @@ jobs:
 
   windows-exe:
     name: Windows EXE
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
     - name: Set git name and email
       run: |

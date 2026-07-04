@@ -1,10 +1,9 @@
 [Desktop Entry]
-Encoding=UTF-8
-Name=Gittyup
+Name=GitNortek
 Comment=Graphical Git client for Windows, Linux and macOS
-Exec=gittyup
-StartupWMClass=com.github.Murmele.Gittyup
-Icon=gittyup
+Exec=gitnortek
+StartupWMClass=com.nortekmed.GitNortek
+Icon=gitnortek
 Terminal=false
 Type=Application
 Categories=Development;

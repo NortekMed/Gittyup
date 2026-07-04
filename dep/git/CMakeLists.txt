@@ -6,7 +6,7 @@ if(NOT USE_SYSTEM_GIT)
     add_executable(${TARGET} ${PATH}/${NAME}/${TARGET}.c)
     set_target_properties(
       ${TARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY
-                           $<TARGET_FILE_DIR:gittyup>/credential-helpers)
+                           $<TARGET_FILE_DIR:gitnortek>/credential-helpers)
     set_target_properties(${TARGET} PROPERTIES C_EXTENSIONS ON)
 
     if(${ARGC} GREATER 1)

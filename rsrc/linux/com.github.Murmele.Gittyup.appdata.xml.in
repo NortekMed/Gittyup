@@ -3,7 +3,7 @@
   <id>@GITTYUP_IDENTIFIER@</id>
   <metadata_license>FSFAP</metadata_license>
   <project_license>MIT</project_license>
-  <name>Gittyup</name>
+  <name>GitNortek</name>
   <summary>Graphical Git client designed to help you understand and manage your source code history</summary>
   <developer_name>Gittyup Community</developer_name>
 
@@ -22,7 +22,7 @@
     </ul>
   </description>
 
-  <launchable type="desktop-id">@GITTYUP_IDENTIFIER@.desktop</launchable>
+  <launchable type="desktop-id">@GITTYUP_EXECUTABLE_NAME@.desktop</launchable>
 
   <screenshots>
     <screenshot type="default">
@@ -46,7 +46,7 @@
   <url type="donation">https://liberapay.com/Gittyup/donate</url>
 
   <provides>
-    <binary>gittyup</binary>
+    <binary>gitnortek</binary>
   </provides>
 
   <releases>
@@ -89,4 +89,3 @@
   </keywords>
 
 </component>
-

@@ -1,5 +1,5 @@
 add_executable(
-  gittyup-indexer
+  gitnortek-indexer
   main.cpp
   indexer.cpp
   diffgrabber.cpp
@@ -9,26 +9,26 @@ add_executable(
   common.cpp
   lexerpool.cpp
   idstorage.cpp)
-target_link_libraries(gittyup-indexer index)
-target_compile_definitions(gittyup-indexer
+target_link_libraries(gitnortek-indexer index)
+target_compile_definitions(gitnortek-indexer
                            PRIVATE GITTYUP_VERSION="${GITTYUP_VERSION}")
 
-set_target_properties(gittyup-indexer PROPERTIES RUNTIME_OUTPUT_DIRECTORY
-                                                 $<TARGET_FILE_DIR:gittyup>)
+set_target_properties(gitnortek-indexer PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+                                                   $<TARGET_FILE_DIR:gitnortek>)
 
 if(APPLE)
   set_target_properties(
-    gittyup-indexer PROPERTIES INSTALL_RPATH
+    gitnortek-indexer PROPERTIES INSTALL_RPATH
                                "/usr/local/qt;@loader_path/../Frameworks")
 else()
   if(WIN32)
-    target_link_libraries(gittyup-indexer Dbghelp.lib)
+    target_link_libraries(gitnortek-indexer Dbghelp.lib)
   elseif(NOT FLATAPK)
-    set_target_properties(gittyup-indexer PROPERTIES INSTALL_RPATH "$ORIGIN")
+    set_target_properties(gitnortek-indexer PROPERTIES INSTALL_RPATH "$ORIGIN")
   endif()
 
   install(
-    TARGETS gittyup-indexer
+    TARGETS gitnortek-indexer
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     COMPONENT ${GITTYUP_NAME})
 endif()

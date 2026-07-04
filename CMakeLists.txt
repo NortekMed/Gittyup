@@ -1,12 +1,12 @@
 # 3.19+: install(FILES $<TARGET_FILE:...>) in pack/CMakeLists.txt (libssh2.dll).
 cmake_minimum_required(VERSION 3.19)
-project(Gittyup)
+project(GitNortek)
 
 # Set name and version.
-set(GITTYUP_NAME "Gittyup")
-set(GITTYUP_EXECUTABLE_NAME "gittyup")
-set(GITTYUP_IDENTIFIER "com.github.Murmele.Gittyup")
-set(GITTYUP_ORGANIZATION_DOMAIN "Murmele.github.com")
+set(GITTYUP_NAME "GitNortek")
+set(GITTYUP_EXECUTABLE_NAME "gitnortek")
+set(GITTYUP_IDENTIFIER "com.nortekmed.GitNortek")
+set(GITTYUP_ORGANIZATION_DOMAIN "nortekmed.com")
 set(GITTYUP_VERSION_MAJOR 2)
 set(GITTYUP_VERSION_MINOR 0)
 set(GITTYUP_VERSION_PATCH 0)

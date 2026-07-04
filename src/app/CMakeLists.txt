@@ -85,7 +85,7 @@ endif()
 
 # Add main executable.
 add_executable(
-  gittyup WIN32 MACOSX_BUNDLE
+  gitnortek WIN32 MACOSX_BUNDLE
   Gittyup.cpp
   ${ICON}
   ${RC_FILE}
@@ -107,16 +107,17 @@ if(GENERATE_APPDATA)
     COMMAND
       ${CMAKE_COMMAND} -DCHANGELOG_HTML:STRING=${CHANGELOG_HTML}
       -DAPPDATA_CONF:STRING=${APPDATA_CONF} -DAPPDATA:STRING=${APPDATA}
-      -DGITTYUP_IDENTIFIER:STRING=${GITTYUP_IDENTIFIER} -P
+      -DGITTYUP_IDENTIFIER:STRING=${GITTYUP_IDENTIFIER}
+      -DGITTYUP_EXECUTABLE_NAME:STRING=${GITTYUP_EXECUTABLE_NAME} -P
       "${CMAKE_SOURCE_DIR}/cmake/generate_appdata.cmake"
     DEPENDS ${CHANGELOG_HTML}
     COMMENT "Create appdata file")
 endif()
 
-target_link_libraries(gittyup app)
+target_link_libraries(gitnortek app)
 
 set_target_properties(
-  gittyup
+  gitnortek
   PROPERTIES OUTPUT_NAME ${GITTYUP_EXECUTABLE_NAME}
              MACOSX_BUNDLE_BUNDLE_NAME ${GITTYUP_NAME}
              RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -125,7 +126,7 @@ if(WIN32)
   target_link_libraries(app Dbghelp.lib)
 elseif(APPLE)
   set_target_properties(
-    gittyup
+    gitnortek
     PROPERTIES INSTALL_RPATH "/usr/local/qt;@loader_path/../Frameworks"
                MACOSX_BUNDLE_INFO_PLIST ${RSRC_DIR}/Info.plist.in
                MACOSX_BUNDLE_ICON_FILE ${GITTYUP_NAME}
@@ -161,14 +162,14 @@ elseif(APPLE)
 else()
 
   if(NOT FLATPAK)
-    set_target_properties(gittyup PROPERTIES INSTALL_RPATH "$ORIGIN")
+    set_target_properties(gitnortek PROPERTIES INSTALL_RPATH "$ORIGIN")
   endif()
 endif()
 
-add_dependencies(gittyup gittyup-indexer gittyup-relauncher)
+add_dependencies(gitnortek gitnortek-indexer gitnortek-relauncher)
 
 install(
-  TARGETS gittyup
+  TARGETS gitnortek
   DESTINATION $<IF:$<PLATFORM_ID:Darwin>,.,${CMAKE_INSTALL_BINDIR}>
   COMPONENT ${GITTYUP_NAME})
 
@@ -178,7 +179,7 @@ if(APPLE)
   get_filename_component(RPATH ${QT_FRAMEWORK} DIRECTORY)
 
   # Fixup relauncher RPATH.
-  set(RELAUNCHER ${CONTENTS_DIR}/MacOS/gittyup-relauncher)
+  set(RELAUNCHER ${CONTENTS_DIR}/MacOS/gitnortek-relauncher)
   install(
     CODE "execute_process(COMMAND
 		${CMAKE_INSTALL_NAME_TOOL} -delete_rpath \"${RPATH}\"
@@ -195,7 +196,7 @@ execute_process(COMMAND
     COMPONENT ${GITTYUP_NAME})
 
   # Fixup indexer RPATH.
-  set(INDEXER ${CONTENTS_DIR}/MacOS/gittyup-indexer)
+  set(INDEXER ${CONTENTS_DIR}/MacOS/gitnortek-indexer)
   install(
     CODE "execute_process(COMMAND
 		${CMAKE_INSTALL_NAME_TOOL} -delete_rpath \"${RPATH}\"
@@ -216,11 +217,13 @@ else()
     install(
       FILES ${CMAKE_SOURCE_DIR}/rsrc/linux/com.github.Murmele.Gittyup.desktop
       DESTINATION ${CMAKE_INSTALL_DATADIR}/applications
+      COMPONENT ${GITTYUP_NAME}
       RENAME ${GITTYUP_EXECUTABLE_NAME}.desktop)
     if(${GENERATE_APPDATA})
       install(
         FILES ${APPDATA}
         DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo
+        COMPONENT ${GITTYUP_NAME}
         RENAME ${GITTYUP_EXECUTABLE_NAME}.appdata.xml)
     endif()
   endif()

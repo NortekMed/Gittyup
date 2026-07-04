@@ -34,7 +34,7 @@ else()
 endif()
 
 add_custom_target(translations DEPENDS ${QM_FILES})
-add_dependencies(gittyup translations)
+add_dependencies(gitnortek translations)
 
 add_library(translation ${LANGUAGE_SOURCE_FILE})
 target_include_directories(translation PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -46,7 +46,7 @@ foreach(LANGUAGE ${LANGUAGES})
   set(QT_QM_FILES ${QT_QM_FILES} ${QT_TRANSLATIONS_DIR}/qtbase_${LANGUAGE}.qm)
 
   if(APPLE)
-    get_target_property(DIR gittyup RUNTIME_OUTPUT_DIRECTORY)
+    get_target_property(DIR gitnortek RUNTIME_OUTPUT_DIRECTORY)
     add_custom_command(
       TARGET translations
       POST_BUILD

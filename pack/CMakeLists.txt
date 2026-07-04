@@ -39,7 +39,7 @@ else()
 endif()
 
 if(FLATPAK)
-  qt_import_plugins(gittyup INCLUDE ${QT_PLUGINS})
+  qt_import_plugins(gitnortek INCLUDE ${QT_PLUGINS})
 elseif(NOT USE_SYSTEM_QT)
   foreach(QT_PLUGIN ${QT_PLUGINS})
     if(NOT TARGET Qt6::${QT_PLUGIN})
@@ -279,20 +279,21 @@ set(CPACK_INSTALL_CMAKE_PROJECTS ${CMAKE_BINARY_DIR} ${GITTYUP_NAME}
 if(GITTYUP_PACK_WIN64)
   set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS
       "${CPACK_NSIS_EXTRA_INSTALL_COMMANDS}
-    WriteRegStr HKCR 'Directory\\\\Background\\\\shell\\\\Gittyup' '' 'Open with Gittyup'
-    WriteRegStr HKCR 'Directory\\\\Background\\\\shell\\\\Gittyup' 'Icon' '\\\"$INSTDIR\\\\${CMAKE_INSTALL_BINDIR}\\\\${GITTYUP_EXECUTABLE_NAME}.exe\\\"'
-    WriteRegStr HKCR 'Directory\\\\Background\\\\shell\\\\Gittyup\\\\command' '' '\\\"$INSTDIR\\\\${CMAKE_INSTALL_BINDIR}\\\\${GITTYUP_EXECUTABLE_NAME}.exe\\\" \\\"%V\\\"'
-    WriteRegStr HKCR 'Directory\\\\shell\\\\Gittyup' '' 'Open with Gittyup'
-    WriteRegStr HKCR 'Directory\\\\shell\\\\Gittyup' 'Icon' '\\\"$INSTDIR\\\\${CMAKE_INSTALL_BINDIR}\\\\${GITTYUP_EXECUTABLE_NAME}.exe\\\"'
-    WriteRegStr HKCR 'Directory\\\\shell\\\\Gittyup\\\\command' '' '\\\"$INSTDIR\\\\${CMAKE_INSTALL_BINDIR}\\\\${GITTYUP_EXECUTABLE_NAME}.exe\\\" \\\"%L\\\"'"
+    WriteRegStr HKCR 'Directory\\\\Background\\\\shell\\\\GitNortek' '' 'Open with GitNortek'
+    WriteRegStr HKCR 'Directory\\\\Background\\\\shell\\\\GitNortek' 'Icon' '\\\"$INSTDIR\\\\${CMAKE_INSTALL_BINDIR}\\\\${GITTYUP_EXECUTABLE_NAME}.exe\\\"'
+    WriteRegStr HKCR 'Directory\\\\Background\\\\shell\\\\GitNortek\\\\command' '' '\\\"$INSTDIR\\\\${CMAKE_INSTALL_BINDIR}\\\\${GITTYUP_EXECUTABLE_NAME}.exe\\\" \\\"%V\\\"'
+    WriteRegStr HKCR 'Directory\\\\shell\\\\GitNortek' '' 'Open with GitNortek'
+    WriteRegStr HKCR 'Directory\\\\shell\\\\GitNortek' 'Icon' '\\\"$INSTDIR\\\\${CMAKE_INSTALL_BINDIR}\\\\${GITTYUP_EXECUTABLE_NAME}.exe\\\"'
+    WriteRegStr HKCR 'Directory\\\\shell\\\\GitNortek\\\\command' '' '\\\"$INSTDIR\\\\${CMAKE_INSTALL_BINDIR}\\\\${GITTYUP_EXECUTABLE_NAME}.exe\\\" \\\"%L\\\"'"
   )
   set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
       "${CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS}
-    DeleteRegKey HKCR 'Directory\\\\Background\\\\shell\\\\Gittyup'
-    DeleteRegKey HKCR 'Directory\\\\shell\\\\Gittyup'")
+    DeleteRegKey HKCR 'Directory\\\\Background\\\\shell\\\\GitNortek'
+    DeleteRegKey HKCR 'Directory\\\\shell\\\\GitNortek'")
 endif()
 
 set(CPACK_PACKAGE_FILE_NAME ${PACKAGE_FILE_NAME})
+set(CPACK_PACKAGE_NAME ${GITTYUP_NAME})
 set(CPACK_PACKAGE_DIRECTORY ${CMAKE_BINARY_DIR}/pack)
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${GITTYUP_NAME})
 set(CPACK_PACKAGE_VENDOR "Gittyup Contributors")
@@ -303,6 +304,7 @@ set(CPACK_PACKAGE_VERSION_MINOR ${GITTYUP_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${GITTYUP_VERSION_PATCH})
 
 if(CPACK_GENERATOR STREQUAL "RPM")
+  set(CPACK_RPM_PACKAGE_NAME gitnortek)
   set(CPACK_RPM_PACKAGE_LICENSE "MIT")
   set(CPACK_RPM_PACKAGE_GROUP "Development/Tools")
   set(CPACK_RPM_PACKAGE_RELEASE 1)
@@ -313,7 +315,7 @@ if(GITTYUP_PACK_WIN64)
 else()
   install(
     FILES ${CMAKE_SOURCE_DIR}/LICENSE.md
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/licenses/Gittyup
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/licenses/${GITTYUP_NAME}
     RENAME LICENSE)
 endif()
 
@@ -335,13 +337,15 @@ if(GITTYUP_PACK_WIN64)
     ${CERTIFICATE_PASSWORD}
     ${CMAKE_BINARY_DIR}/${PACKAGE_FILE_NAME}.exe
     COMMAND ${CMAKE_COMMAND} -E make_directory ${PACKAGE_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/Gittyup.exe
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_BINARY_DIR}/${GITTYUP_EXECUTABLE_NAME}.exe
             ${PACKAGE_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/Gittyup.pdb
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_BINARY_DIR}/${GITTYUP_EXECUTABLE_NAME}.pdb
             ${PACKAGE_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/gittyup-indexer.exe
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/gitnortek-indexer.exe
             ${PACKAGE_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/gittyup-indexer.pdb
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/gitnortek-indexer.pdb
             ${PACKAGE_DIR})
 
   add_dependencies(deploy package)

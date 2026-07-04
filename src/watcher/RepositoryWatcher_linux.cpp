@@ -9,6 +9,8 @@
 
 #include "RepositoryWatcher.h"
 #include <QMap>
+#include <QSet>
+#include <QStringList>
 #include <QThread>
 #include <poll.h>
 #include <unistd.h>
@@ -52,7 +54,8 @@ public:
 
   void run() override {
     // Watch the root directory.
-    watch(mRepo.workdir());
+    watchWorkdir(mRepo.workdir());
+    watchGitMetadata();
 
     // Start listening for notifications.
     forever {
@@ -86,13 +89,20 @@ public:
           event = reinterpret_cast<inotify_event *>(ptr);
           if (event->len) {
             QString path = mWds.value(event->wd).filePath(event->name);
-            if (!mRepo.isIgnored(path)) {
+            bool gitMetadata = mGitWds.contains(event->wd);
+            if (gitMetadata && isGitMetadataPath(path)) {
+              ignored = false;
+
+              uint32_t mask = (IN_CREATE | IN_ISDIR);
+              if ((event->mask & mask) == mask)
+                watchGitDirectory(QDir(path), true);
+            } else if (!gitMetadata && !mRepo.isIgnored(path)) {
               ignored = false;
 
               // Start watching new directories.
               uint32_t mask = (IN_CREATE | IN_ISDIR);
               if ((event->mask & mask) == mask)
-                watch(path);
+                watchWorkdir(path);
             }
           }
         }
@@ -103,20 +113,71 @@ public:
     }
   }
 
-  void watch(const QDir &dir) {
-    int wd = inotify_add_watch(mFd, dir.path().toUtf8(), kFlags);
+  bool watchDirectory(const QDir &dir, bool gitMetadata) {
+    QString path = dir.path();
+    if (mDirWds.contains(path)) {
+      if (gitMetadata)
+        mGitWds.insert(mDirWds.value(path));
+      return true;
+    }
+
+    int wd = inotify_add_watch(mFd, path.toUtf8(), kFlags);
     if (wd < 0)
-      return; // FIXME: Report error?
+      return false; // FIXME: Report error?
 
     // Associate the dir with this watch descriptor.
     mWds[wd] = dir;
+    mDirWds[path] = wd;
+    if (gitMetadata)
+      mGitWds.insert(wd);
+
+    return true;
+  }
+
+  void watchWorkdir(const QDir &dir) {
+    if (!watchDirectory(dir, false))
+      return;
 
     // Watch subdirs.
     foreach (const QString &name, dir.entryList(kFilters)) {
       QString path = dir.filePath(name);
       if (!mRepo.isIgnored(path))
-        watch(path);
+        watchWorkdir(path);
     }
+  }
+
+  void watchGitDirectory(const QDir &dir, bool recursive) {
+    if (!dir.exists() || !watchDirectory(dir, true))
+      return;
+
+    if (!recursive)
+      return;
+
+    foreach (const QString &name, dir.entryList(kFilters))
+      watchGitDirectory(QDir(dir.filePath(name)), true);
+  }
+
+  void watchGitMetadata() {
+    QDir gitDir = mRepo.dir();
+    watchGitDirectory(gitDir, false);
+
+    foreach (const QString &path,
+             QStringList({"refs", "refs/heads", "refs/remotes", "refs/tags",
+                          "logs", "logs/refs", "logs/refs/heads",
+                          "logs/refs/remotes"}))
+      watchGitDirectory(QDir(gitDir.filePath(path)), true);
+  }
+
+  bool isGitMetadataPath(const QString &path) const {
+    QString relative = mRepo.dir().relativeFilePath(path);
+    return relative == "HEAD" || relative == "index" ||
+           relative == "packed-refs" || relative == "refs" ||
+           relative.startsWith("refs/") || relative == "logs" ||
+           relative == "logs/HEAD" || relative == "logs/refs" ||
+           relative == "logs/refs/heads" ||
+           relative.startsWith("logs/refs/heads/") ||
+           relative == "logs/refs/remotes" ||
+           relative.startsWith("logs/refs/remotes/");
   }
 
   void stop() {
@@ -132,6 +193,8 @@ private:
   int mFd = -1;
   int mPipe[2] = {-1, -1};
   QMap<int, QDir> mWds;
+  QMap<QString, int> mDirWds;
+  QSet<int> mGitWds;
 };
 
 RepositoryWatcher::RepositoryWatcher(const git::Repository &repo,

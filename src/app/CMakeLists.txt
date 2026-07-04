@@ -64,7 +64,7 @@ target_compile_definitions(
          GITTYUP_IDENTIFIER="${GITTYUP_IDENTIFIER}"
          GITTYUP_ORGANIZATION_DOMAIN="${GITTYUP_ORGANIZATION_DOMAIN}"
          GITTYUP_DBUS_INTERFACE_NAME="${GITTYUP_IDENTIFIER}.Application"
-         GITTYUP_DBUS_OBJECT_PATH="/com/github/Murmele/Gittyup/Application"
+         GITTYUP_DBUS_OBJECT_PATH="/com/nortekmed/GitNortek/Application"
   PRIVATE QT_TRANSLATIONS_DIR="${QT_TRANSLATIONS_DIR}"
           BUILD_DESCRIPTION="${BUILD_DESCRIPTION}")
 
@@ -218,7 +218,7 @@ else()
       FILES ${CMAKE_SOURCE_DIR}/rsrc/linux/com.github.Murmele.Gittyup.desktop
       DESTINATION ${CMAKE_INSTALL_DATADIR}/applications
       COMPONENT ${GITTYUP_NAME}
-      RENAME ${GITTYUP_EXECUTABLE_NAME}.desktop)
+      RENAME ${GITTYUP_IDENTIFIER}.desktop)
     if(${GENERATE_APPDATA})
       install(
         FILES ${APPDATA}

@@ -22,7 +22,7 @@
     </ul>
   </description>
 
-  <launchable type="desktop-id">@GITTYUP_EXECUTABLE_NAME@.desktop</launchable>
+  <launchable type="desktop-id">@GITTYUP_IDENTIFIER@.desktop</launchable>
 
   <screenshots>
     <screenshot type="default">

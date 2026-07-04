@@ -133,6 +133,9 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
   // Create tab container.
   TabWidget *tabs = new TabWidget(splitter);
   connect(tabs, &TabWidget::currentChanged, [this](int index) {
+    if (RepoView *repoView = view(index))
+      repoView->refresh(false);
+
     updateInterface();
     MenuBar::instance(this)->update();
   });

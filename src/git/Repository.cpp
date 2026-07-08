@@ -397,7 +397,7 @@ bool Repository::setHead(const Reference &ref) {
 
 bool Repository::setHeadDetached(const Commit &commit) {
   int error = git_repository_set_head_detached(d->repo, commit);
-  emit d->notifier->referenceUpdated(head());
+  emit d->notifier->referenceUpdated(head(), true);
   return !error;
 }
 

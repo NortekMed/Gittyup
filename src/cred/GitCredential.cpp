@@ -12,7 +12,9 @@
 #include <QStandardPaths>
 #include <QCoreApplication>
 #include <QDir>
+#include <QFileInfo>
 #include <QProcess>
+#include <QStringList>
 #include <QTextStream>
 #include <QUrl>
 
@@ -41,9 +43,13 @@ GitCredential::GitCredential(const QString &name) : mName(name) {}
 bool GitCredential::get(const QString &url, QString &username,
                         QString &password) {
   QProcess process;
-  process.start(command(), {"get"});
-  if (!process.waitForStarted())
+  QString helper = command();
+  process.start(helper, {"get"});
+  if (!process.waitForStarted()) {
+    log(QString("failed to start credential helper %1: %2")
+            .arg(helper, process.errorString()));
     return false;
+  }
 
   QTextStream out(&process);
   out << "protocol=" << protocol(url) << Qt::endl;
@@ -54,6 +60,12 @@ bool GitCredential::get(const QString &url, QString &username,
 
   process.closeWriteChannel();
   process.waitForFinished();
+
+  if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0) {
+    log(QString("credential helper %1 get failed: %2")
+            .arg(helper, QString::fromUtf8(process.readAllStandardError())));
+    return false;
+  }
 
   QString output = process.readAllStandardOutput();
   foreach (const QString &line, output.split('\n')) {
@@ -76,9 +88,13 @@ bool GitCredential::get(const QString &url, QString &username,
 bool GitCredential::store(const QString &url, const QString &username,
                           const QString &password) {
   QProcess process;
-  process.start(command(), {"store"});
-  if (!process.waitForStarted())
+  QString helper = command();
+  process.start(helper, {"store"});
+  if (!process.waitForStarted()) {
+    log(QString("failed to start credential helper %1: %2")
+            .arg(helper, process.errorString()));
     return false;
+  }
 
   QTextStream out(&process);
   out << "protocol=" << protocol(url) << Qt::endl;
@@ -89,6 +105,12 @@ bool GitCredential::store(const QString &url, const QString &username,
 
   process.closeWriteChannel();
   process.waitForFinished();
+
+  if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0) {
+    log(QString("credential helper %1 store failed: %2")
+            .arg(helper, QString::fromUtf8(process.readAllStandardError())));
+    return false;
+  }
 
   return true;
 }
@@ -108,6 +130,17 @@ QString GitCredential::command() const {
   candidate = QStandardPaths::findExecutable(name);
   if (!candidate.isEmpty()) {
     return candidate;
+  }
+
+  QProcess git;
+  git.start("git", {"--exec-path"});
+  if (git.waitForStarted() && git.waitForFinished() &&
+      git.exitStatus() == QProcess::NormalExit && git.exitCode() == 0) {
+    QString execPath = QString::fromUtf8(git.readAllStandardOutput()).trimmed();
+    candidate = QStandardPaths::findExecutable(name, QStringList(execPath));
+    if (!candidate.isEmpty()) {
+      return candidate;
+    }
   }
 
 #ifdef Q_OS_WIN

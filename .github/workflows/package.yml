@@ -79,7 +79,7 @@ jobs:
       uses: jurplel/install-qt-action@v4.3.0
       timeout-minutes: 10
       with:
-        version: 6.6.0
+        version: 6.7.3
         target: desktop
         host: windows
         arch: win64_msvc2019_64

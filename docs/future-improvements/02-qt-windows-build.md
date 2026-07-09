@@ -1,6 +1,6 @@
 # 02 - Qt Windows Build Compatibility
 
-Status: Planned
+Status: Implemented
 
 Source: `Nicolas01/Gittyup:fix/qt-version-windows-build`
 
@@ -33,6 +33,17 @@ GitNortek already has NortekMed packaging workflow changes. The forked branch in
 2. Port only still-relevant changes.
 3. Avoid broad workflow rewrites unless current CI is broken.
 4. If runtime Windows palette polishing is still missing, port it separately inside this feature commit.
+
+## Implementation Notes
+
+Implemented the still-relevant compatibility pieces:
+- Removed unused Qt `PrintSupport` from the module list.
+- Updated the Windows packaged style plugin from `QWindowsVistaStylePlugin` to `QModernWindowsStylePlugin`.
+- Made missing Qt plugin targets non-fatal for all platforms when bundling Qt.
+- Updated CI/package Qt version to 6.7.3.
+- Used `QT_ROOT_DIR` for AppImage deployment when provided by `install-qt-action`.
+- Passed `--repo` explicitly to `gh release` commands.
+- Re-polished the Windows application palette after applying the theme style.
 
 ## Acceptance Criteria
 

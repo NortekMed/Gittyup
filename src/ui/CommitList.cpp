@@ -104,6 +104,8 @@ public:
 
   git::Reference reference() const { return mRef; }
 
+  bool isHeadDetached() const { return mRepo.isHeadDetached(); }
+
   git::Diff status() const {
     if (!mStatus.isFinished())
       return git::Diff();
@@ -1212,6 +1214,14 @@ CommitList::CommitList(Index *index, QWidget *parent)
   CommitModel *model = static_cast<CommitModel *>(mModel);
   connect(model, &CommitModel::statusFinished, [this, model](bool visible) {
     mRestoreSelection = true; // Reset to default
+
+    // Select the detached HEAD commit when opening a repository that is not on
+    // the tip. Otherwise the fallback below selects the newest visible commit.
+    if (selectedIndexes().isEmpty() && model->isHeadDetached()) {
+      git::Commit commit = model->reference().target();
+      if (commit.isValid() && selectRange(commit.id().toString()))
+        return;
+    }
 
     // Select the first commit if the selection was cleared.
     if (selectedIndexes().isEmpty())

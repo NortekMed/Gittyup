@@ -383,10 +383,13 @@ bool DiffView::canFetchMore() {
  * use a while loop with canFetchMore() to get all
  */
 void DiffView::fetchMore(int fetchWidgets) {
+  const bool forceFetch = fetchWidgets < 0;
+  const bool lazyLoadBlocked =
+      !forceFetch && verticalScrollBar()->maximum() -
+                         verticalScrollBar()->value() > height() / 2;
+
   // Back out early if we're reentrant or lazy loading isn't triggered
-  if (mFetching ||
-      (verticalScrollBar()->maximum() - verticalScrollBar()->value() >
-       height() / 2))
+  if (mFetching || lazyLoadBlocked)
     return;
   QScopedValueRollback rollback(mFetching, true);
 
@@ -397,7 +400,7 @@ void DiffView::fetchMore(int fetchWidgets) {
   int addedWidgets = 0;
 
   // Fetch all files
-  bool fetchAll = fetchWidgets < 0 ? true : false;
+  bool fetchAll = forceFetch;
   if (fetchWidgets < 0)
     fetchWidgets = 4;
 
@@ -499,7 +502,7 @@ void DiffView::fetchMore(int fetchWidgets) {
 void DiffView::fetchAll(int index) {
   // Load all patches up to and including index.
   while ((index < 0 || mFiles.size() <= index) && canFetchMore())
-    fetchMore();
+    fetchMore(-1);
 }
 
 void DiffView::indexChanged(const QStringList &paths) {

@@ -1,13 +1,13 @@
 ---
-name: Package Artifacts
+name: GitNortek Packages
 
 on:
   push:
-    branches:
-    - master
-    - main
-  pull_request:
-  workflow_dispatch:
+    tags:
+    - 'v*.*.*-pre*'
+
+env:
+  TAG_PATTERN: '^v[0-9]+\.[0-9]+\.[0-9]+-pre\.?[0-9]+$'
 
 jobs:
   rpm:
@@ -15,6 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     container: fedora:42
     steps:
+    - name: Validate tag
+      run: |
+        if [[ ! "${GITHUB_REF_NAME}" =~ ${TAG_PATTERN} ]]; then
+          echo "Tag '${GITHUB_REF_NAME}' does not match expected format vX.Y.Z-preN or vX.Y.Z-pre.N."
+          exit 1
+        fi
+
     - name: Install build dependencies
       run: |
         dnf -y update
@@ -52,7 +59,7 @@ jobs:
     - name: Upload RPM
       uses: actions/upload-artifact@v6
       with:
-        name: Gittyup RPM
+        name: GitNortek-RPM
         path: build/release/pack/*.rpm
         if-no-files-found: error
 
@@ -60,6 +67,14 @@ jobs:
     name: Windows EXE
     runs-on: windows-2022
     steps:
+    - name: Validate tag
+      shell: bash
+      run: |
+        if [[ ! "${GITHUB_REF_NAME}" =~ ${TAG_PATTERN} ]]; then
+          echo "Tag '${GITHUB_REF_NAME}' does not match expected format vX.Y.Z-preN or vX.Y.Z-pre.N."
+          exit 1
+        fi
+
     - name: Set git name and email
       run: |
         git config --global user.name "Your Name"
@@ -137,6 +152,64 @@ jobs:
     - name: Upload EXE
       uses: actions/upload-artifact@v6
       with:
-        name: Gittyup Windows Installer
+        name: GitNortek-Windows-Installer
         path: build/release/pack/*.exe
         if-no-files-found: error
+
+  release:
+    name: GitHub Release
+    needs: [rpm, windows-exe]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Validate tag
+      run: |
+        if [[ ! "${GITHUB_REF_NAME}" =~ ${TAG_PATTERN} ]]; then
+          echo "Tag '${GITHUB_REF_NAME}' does not match expected format vX.Y.Z-preN or vX.Y.Z-pre.N."
+          exit 1
+        fi
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v6
+      with:
+        path: artifacts
+
+    - name: Create or update GitHub release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+        shopt -s nullglob
+
+        tag="${GITHUB_REF_NAME}"
+        rpms=(artifacts/GitNortek-RPM/*.rpm)
+        installers=(artifacts/GitNortek-Windows-Installer/*.exe)
+        files=("${rpms[@]}" "${installers[@]}")
+
+        if [ ${#rpms[@]} -eq 0 ]; then
+          echo "No RPM asset to upload."
+          exit 1
+        fi
+
+        if [ ${#installers[@]} -eq 0 ]; then
+          echo "No Windows installer asset to upload."
+          exit 1
+        fi
+
+        if ! gh release view "$tag" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+          gh release create "$tag" \
+            --repo "${{ github.repository }}" \
+            --prerelease \
+            --title "GitNortek $tag" \
+            --target "${{ github.sha }}" \
+            "${files[@]}"
+        else
+          gh release edit "$tag" \
+            --repo "${{ github.repository }}" \
+            --prerelease \
+            --title "GitNortek $tag"
+          gh release upload "$tag" "${files[@]}" \
+            --repo "${{ github.repository }}" \
+            --clobber
+        fi

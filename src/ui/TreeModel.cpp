@@ -100,7 +100,7 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const {
       // because the folder it self cannot be staged
       for (int i = 0; i < mDiff.count(); ++i) {
         QString path = mDiff.name(i);
-        if (path.startsWith(prefix))
+        if (containsPath(path, prefix))
           paths.append(path);
       }
 
@@ -196,7 +196,7 @@ bool TreeModel::setData(const QModelIndex &index, const QVariant &value,
       QString prefix = node->path(true);
       for (int i = 0; i < mDiff.count(); ++i) {
         QString file = mDiff.name(i);
-        if (file.startsWith(prefix))
+        if (containsPath(file, prefix))
           files.append(file);
       }
 

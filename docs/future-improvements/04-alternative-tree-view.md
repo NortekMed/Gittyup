@@ -1,6 +1,6 @@
 # 04 - Alternative Tree View
 
-Status: Planned
+Status: Integrated, focused on folder selection correctness
 
 Source: `Nicolas01/Gittyup:AlternativeTreeView`
 
@@ -16,7 +16,9 @@ Improve changed-file navigation and folder selection behavior in the commit/stat
 
 ## Current Behavior
 
-File tree behavior is functional but folder-level review and tree state preservation can be improved.
+The current GitNortek code already includes the focused upstream behavior for folder-level diff selection: selected folder nodes expand to their child file model indexes, so the diff view can show all matching files.
+
+The remaining issue was path matching correctness. The helper accepted substring matches in one direction, which meant similar sibling names such as `src/test` and `src/test.txt1` could be confused and the existing `Diff` tests did not match the implementation.
 
 ## Desired Behavior
 
@@ -27,19 +29,18 @@ File tree behavior is functional but folder-level review and tree state preserva
 
 ## Implementation Plan
 
-1. Inspect the current `TreeView`, `TreeModel`, `TreeProxy`, `DoubleTreeWidget`, and `DiffTreeModel` relationships.
-2. Port folder-selection behavior first if it can be isolated.
-3. Port collapse-state preservation second.
-4. Avoid replacing the whole tree view unless the current architecture blocks incremental work.
-5. Update this plan if the feature must depend on lazy diff hunk loading.
+1. Keep the existing folder selection flow through `DoubleTreeWidget`, `TreeView`, `DiffTreeModel::modelIndices()`, and `DiffView::updateFiles()`.
+2. Fix `containsPath()` to be boundary-aware for exact paths and parent/child paths in either call direction.
+3. Preserve the existing `Diff` path-matching tests and add a sibling-prefix regression case.
+4. Do not port the broader historical tree-view refactor because the focused behavior is already present.
 
 ## Acceptance Criteria
 
-- Folder selection displays useful aggregated diffs.
+- Folder selection displays aggregated diffs for files inside the selected folder.
+- Folder matching does not include sibling paths with the same text prefix.
 - File selection behavior remains unchanged.
-- Refresh does not unnecessarily destroy tree expansion state.
 - Build succeeds.
 
 ## Risk
 
-High. The source branch is a large UI refactor and overlaps with diff-view changes.
+Moderate. The broader source branch is a large UI refactor, but this integration only touches path matching and existing tests.

@@ -51,6 +51,12 @@ private slots:
     occurence = "/src/testfile.txt1";
     QVERIFY(!containsPath(str, occurence));
   }
+
+  void testContainsPathSiblingPrefix() {
+    QString str("src/test");
+    QString occurence("src/test.txt1");
+    QVERIFY(!containsPath(str, occurence));
+  }
 };
 
 TEST_MAIN(TestDiff)

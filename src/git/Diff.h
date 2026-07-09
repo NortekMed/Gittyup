@@ -18,17 +18,14 @@
 
 /*!
  * \brief containsPath
- * Checks if \p str contains \p occurence from start (if it is a
- * subfile/subfolder of \p occurence) Testcases: /src/testfile.txt,
- * /src/testfile.txt1 - path: /src/testfile.txt --> only /src/testfile.txt1 is
- * shown /src/testfile.txt, /src/testfile.txt1 - path: /src --> testfile.txt and
- * testfile.txt is shown /src/test/test.txt11, /src/testfile.txt,
- * /src/testfile.txt1 - path: /src/test --> only /src/test/testtest.txt11 is
- * shown \param str String in which should be searched \param occurence Search
- * this string in \p str \param cs Case sensitive or not \return True when
- * contains, otherwise false
+ * Checks whether two paths are equal or one is a child of the other, without
+ * matching sibling paths that only share a text prefix.
+ * \param str First path to compare
+ * \param occurence Second path to compare
+ * \param cs Case sensitive or not
+ * \return True when the paths match exactly or have a parent/child relation
  */
-bool containsPath(QString &str, QString &occurence,
+bool containsPath(const QString &str, const QString &occurence,
                   Qt::CaseSensitivity cs = Qt::CaseSensitive);
 
 namespace git {

@@ -14,18 +14,17 @@
 #include <algorithm>
 #include <stdexcept>
 
-bool containsPath(QString &str, QString &occurence, Qt::CaseSensitivity cs) {
-  if (str.contains(occurence, cs)) {
-    if (str.size() == occurence.size()) {
-      // file/folder matches exactly
-      return true;
-    } else if (str.size() >= occurence.length() + 1 &&
-               str[occurence.length()] == '/') {
-      // file or folder in occurence
-      return true;
-    }
-  }
-  return false;
+bool containsPath(const QString &str, const QString &occurence,
+                  Qt::CaseSensitivity cs) {
+  if (str.compare(occurence, cs) == 0)
+    return true;
+
+  const QString prefix = occurence + '/';
+  if (str.startsWith(prefix, cs))
+    return true;
+
+  const QString reversePrefix = str + '/';
+  return occurence.startsWith(reversePrefix, cs);
 }
 
 namespace git {

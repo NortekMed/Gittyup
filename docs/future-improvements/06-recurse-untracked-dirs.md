@@ -1,6 +1,6 @@
 # 06 - Recurse Untracked Directories
 
-Status: Planned
+Status: Already integrated
 
 Source: `Nicolas01/Gittyup:RecurseUntrackedDirs`
 
@@ -13,7 +13,11 @@ Improve staging, discard, and display behavior for untracked directories.
 
 ## Current Behavior
 
-Untracked folders may be treated as a single item or require less convenient manual handling depending on status/diff context.
+The current GitNortek code already recurses untracked directories during status diff creation:
+
+- `Repository::diffTreeToIndex()` adds `GIT_DIFF_RECURSE_UNTRACKED_DIRS` with `GIT_DIFF_INCLUDE_UNTRACKED` when untracked files are visible.
+- `Repository::diffIndexToWorkdir()` applies the same recursion flag for workdir diffs.
+- The behavior still respects the `untracked.hide` setting.
 
 ## Desired Behavior
 
@@ -23,18 +27,17 @@ Untracked folders may be treated as a single item or require less convenient man
 
 ## Implementation Plan
 
-1. Inspect current status generation and `DiffTreeModel` handling of untracked entries.
-2. Identify whether recursion belongs in git status collection, tree model expansion, or action execution.
-3. Avoid accidentally recursing into ignored or huge directories without user intent.
-4. Add tests or manual validation with nested untracked directories.
+1. Keep the existing `GIT_DIFF_RECURSE_UNTRACKED_DIRS` usage in status diff generation.
+2. Keep honoring `untracked.hide` so hidden untracked files are not expanded.
+3. No code port is needed from `Nicolas01/Gittyup:RecurseUntrackedDirs` because the relevant implementation is already present.
 
 ## Acceptance Criteria
 
-- Nested untracked files are visible/actionable from the UI.
-- Stage/discard actions recurse correctly when selected at folder level.
+- Nested untracked files are visible/actionable from the UI when untracked files are shown.
+- Stage/discard actions can operate on recursively discovered untracked files.
 - Ignored files remain ignored.
 - Build succeeds.
 
 ## Risk
 
-Medium-high. Directory recursion can be expensive and destructive actions need careful safeguards.
+Low. This is a documentation/status update for an already integrated diff option.

@@ -1,6 +1,6 @@
 # 05 - Maximize Detail Pane
 
-Status: Planned
+Status: Already integrated
 
 Source: `Nicolas01/Gittyup:MaximizeDetail`
 
@@ -15,7 +15,12 @@ Add a user action to maximize or restore the detail/diff pane.
 
 ## Current Behavior
 
-The detail pane shares space with the sidebar and log. Reviewing large diffs may require manual splitter adjustment.
+The current GitNortek code already includes the maximize-detail feature:
+
+- `RepoView::detailSplitterMaximize()` hides or restores widgets in `mDetailSplitter`.
+- `MenuBar` exposes a `StateAction` labeled `Maximize`/`Normal` with `Ctrl+M`.
+- The action applies the same maximized widget choice across open repository views.
+- `MainWindow::addTab()` applies the current maximize state to newly opened tabs.
 
 ## Desired Behavior
 
@@ -25,17 +30,16 @@ The detail pane shares space with the sidebar and log. Reviewing large diffs may
 
 ## Implementation Plan
 
-1. Inspect current `RepoView` splitter handling and existing maximize menu actions.
-2. Add a small reusable state action only if necessary.
-3. Prefer minimal `RepoView` methods over broad UI refactor.
-4. Add toolbar/menu wiring if it matches current design.
+1. Keep the existing `RepoView::detailSplitterMaximize()` implementation.
+2. Keep the existing `MenuBar` toggle wiring and `Ctrl+M` shortcut.
+3. No code port is needed from `Nicolas01/Gittyup:MaximizeDetail` because the relevant implementation is already present.
 
 ## Acceptance Criteria
 
-- Detail pane can be maximized/restored from UI.
-- State survives normal refreshes while the view is open.
+- Detail pane can be maximized/restored from the View menu or `Ctrl+M`.
+- New tabs inherit the active maximize state.
 - Build succeeds.
 
 ## Risk
 
-Medium-high. The source branch depends on broader diff-view refactor, so implementation should be adapted to current GitNortek.
+Low. This is a documentation/status update for an already integrated feature.

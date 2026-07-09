@@ -1,6 +1,6 @@
 # 01 - Ptyxis Terminal Support
 
-Status: Planned
+Status: Implemented
 
 Source: `Nicolas01/Gittyup:ptyxis_terminal`
 
@@ -28,9 +28,13 @@ When no custom terminal command is configured:
 ## Implementation Plan
 
 1. Update the Linux terminal candidate list in `src/ui/RepoView.cpp` to include `ptyxis`.
-2. When `ptyxis` is the detected candidate, build a command that passes `--tab` and `--working-directory` with the repository workdir.
+2. When `ptyxis` is the detected candidate on native Linux, build a command that passes `--tab` and `--working-directory` with the repository workdir.
 3. Keep the existing `sh -c` launch path to avoid cross-platform refactoring.
-4. Add candidate details to the “No terminal executable found” message only if the code remains simple.
+4. Keep Flatpak behavior unchanged because `flatpak-spawn --host` currently receives the detected terminal command as a single argument.
+
+## Implementation Notes
+
+Implemented as a native Linux-only auto-detection enhancement. Custom terminal commands remain unchanged, and Ptyxis is only given extra arguments when GitNortek itself detected Ptyxis.
 
 ## Acceptance Criteria
 

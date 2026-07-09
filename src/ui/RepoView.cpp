@@ -2655,7 +2655,8 @@ void RepoView::openTerminal() {
     static QString detectedTerminal = nullptr;
     static const QStringList candidates = {
         "x-terminal-emulator", "xdg-terminal", "i3-sensible-terminal",
-        "gnome-terminal",      "konsole",      "xterm",
+        "gnome-terminal",      "konsole",      "ptyxis",
+        "xterm",
     };
 
     if (detectedTerminal.isNull()) {
@@ -2677,6 +2678,12 @@ void RepoView::openTerminal() {
         if (!exePath.isEmpty()) {
           detectedTerminal =
               '"' + exePath.replace("\\", "\\\\").replace("\"", "\\\"") + '"';
+          if (candidate == "ptyxis") {
+            QString workdir = mRepo.workdir().absolutePath();
+            workdir.replace("\\", "\\\\").replace("\"", "\\\"");
+            detectedTerminal +=
+                QString(" --tab --working-directory \"%1\"").arg(workdir);
+          }
           break;
         }
 #endif
